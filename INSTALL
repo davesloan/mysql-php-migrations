@@ -1,0 +1,36 @@
+------------------------------------------------------------------------------
+REQUIREMENTS:
+------------------------------------------------------------------------------
+
+1) PHP 5.2.6+ (w/ CLI)
+
+2) PDO_MySQL or MySQLi extension for PHP
+
+3) MySQL 4.1+
+
+* For generating API documentation, you must have phpDocumentor installed.
+
+------------------------------------------------------------------------------
+INSTALLATION
+------------------------------------------------------------------------------
+
+1) CHMOD migrate.php to be executable.
+
+2) Open migrate.php and modify the top line so it points to the path/file
+   of your PHP binary.  The current line works in most *nix installations.
+
+3) Make sure you have a valid username/password for your MySQL database server
+   and have already created the database on which you will be performing
+   migrations against.
+
+4) On the command line, run the following and answer the prompts:
+   ./migrate.php init
+
+For a list of commands and how to use them, run:
+./migrate.php help
+
+*****
+
+For API documentation, a phpDocumentor INI file has been provided in the docs
+directory.  You will need to edit this to make changes specific to your 
+installation.

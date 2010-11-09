@@ -1,0 +1,18 @@
+<?php
+
+class Migration_@@timestamp@@ extends MpmMigration
+{
+
+	public function up(PDO &$pdo)
+	{
+		
+	}
+
+	public function down(PDO &$pdo)
+	{
+		
+	}
+
+}
+
+?>
