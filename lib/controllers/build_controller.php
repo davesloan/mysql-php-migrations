@@ -161,8 +161,25 @@ class MpmBuildController extends MpmController
 		echo "\n", 'Building initial database schema... ';
 	    $obj->build();
 		echo 'done.', "\n\n", 'Applying migrations... ';
-		$obj = new MpmLatestController();
-		$obj->doAction(true);
+		try
+		{
+			$total_migrations = MpmMigrationHelper::getMigrationCount();
+			if ($total_migrations == 0)
+			{
+				echo "no migrations exist.";
+			}
+			else
+			{
+				$to_id = MpmMigrationHelper::getLatestMigration();
+				$obj = new MpmUpController('up', array ( $to_id, $forced ));
+	    		$obj->doAction($quiet);
+			}
+		}
+		catch (Exception $e)
+		{
+			echo "\n\nERROR: " . $e->getMessage() . "\n\n";
+			exit;
+		}
 		if ($with_data)
 		{
 	    	require_once(MPM_DB_PATH . 'test_data.php');
@@ -198,8 +215,10 @@ class MpmBuildController extends MpmController
 		$obj->addText(' ');
 		$obj->addText('WARNING: THIS IS A DESTRUCTIVE ACTION!!  BEFORE THE DATABASE IS BUILT, ALL TABLES CURRENTLY IN THE DATABASE ARE REMOVED!');
 		$obj->addText(' ');
-		$obj->addText('Valid Example:');
-		$obj->addText('./migrate.php add', 4);
+		$obj->addText('Valid Examples:');
+		$obj->addText('./migrate.php build add', 4);
+		$obj->addText('./migrate.php build with_data', 4);
+		$obj->addText('./migrate.php build with_data --force', 4);
 		$obj->write();
 	}
 

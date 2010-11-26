@@ -16,7 +16,7 @@
  */
 class MpmLatestController extends MpmController
 {
-	
+
 	/**
 	 * Determines what action should be performed and takes that action.
 	 *
@@ -26,7 +26,7 @@ class MpmLatestController extends MpmController
 	 * @uses MpmCommandLineWriter::getInstance()
 	 * @uses MpmMigrationHelper::getLatestMigration()
 	 * @uses MpmUpController::doAction()
-	 * 
+	 *
 	 * @param bool $quiet supresses certain text when true
 	 *
 	 * @return void
@@ -35,14 +35,14 @@ class MpmLatestController extends MpmController
 	{
 		// make sure we're init'd
 		MpmDbHelper::test();
-		
+
 		// are we forcing this?
 		$forced = '';
 		if (isset($this->arguments[0]) && strcasecmp($this->arguments[0], '--force') == 0)
 		{
 		    $forced = '--force';
 		}
-		
+
 		try
 		{
 			$total_migrations = MpmMigrationHelper::getMigrationCount();
@@ -51,11 +51,13 @@ class MpmLatestController extends MpmController
 				$clw = MpmCommandLineWriter::getInstance();
 				$clw->addText('No migrations exist.');
 				$clw->write();
-				exit;
 			}
-			$to_id = MpmMigrationHelper::getLatestMigration();
-			$obj = new MpmUpController('up', array ( $to_id, $forced ));
-    		$obj->doAction($quiet);
+			else
+			{
+				$to_id = MpmMigrationHelper::getLatestMigration();
+				$obj = new MpmUpController('up', array ( $to_id, $forced ));
+	    		$obj->doAction($quiet);
+			}
 		}
 		catch (Exception $e)
 		{
@@ -63,14 +65,14 @@ class MpmLatestController extends MpmController
 			exit;
 		}
 	}
-	
+
 	/**
 	 * Displays the help page for this controller.
-	 * 
+	 *
 	 * @uses MpmCommandLineWriter::getInstance()
 	 * @uses MpmCommandLineWriter::addText()
 	 * @uses MpmCommandLineWriter::write()
-	 * 
+	 *
 	 * @return void
 	 */
 	public function displayHelp()
@@ -87,7 +89,7 @@ class MpmLatestController extends MpmController
 		$obj->addText('./migrate.php latest --force', 4);
 		$obj->write();
 	}
-	
+
 }
 
 ?>

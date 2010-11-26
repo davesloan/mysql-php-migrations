@@ -46,7 +46,16 @@ class MpmTemplateHelper
 	 */
 	static public function getTemplate($file, $vars = array())
 	{
-		$db_config = $GLOBALS['db_config'];
+		if (isset($GLOBALS['db_config']))
+		{
+			$db_config = $GLOBALS['db_config'];
+		}
+		else
+		{
+			$db_config = new stdClass();
+			$db_config->db_path = MPM_PATH . '/lib/templates/';
+		}
+
 		// has the file been customized?
 		if (file_exists($db_config->db_path . $file))
 		{
