@@ -14,6 +14,12 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+// fix date issues
+if (function_exists('date_default_timezone_set'))
+{
+    date_default_timezone_set("UTC");
+}
+
 /**
  * Define the full path to this file.
  */
@@ -22,7 +28,7 @@ define('MPM_PATH', dirname(__FILE__));
 /**
  * Version Number - for reference
  */
-define('MPM_VERSION', '2.1.0');
+define('MPM_VERSION', '2.1.1');
 
 /**
  * Include the init script.
