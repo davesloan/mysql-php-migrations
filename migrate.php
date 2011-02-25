@@ -22,7 +22,7 @@ define('MPM_PATH', dirname(__FILE__));
 /**
  * Version Number - for reference
  */
-define('MPM_VERSION', '2.1.0');
+define('MPM_VERSION', '2.1.1');
 
 /**
  * Include the init script.
