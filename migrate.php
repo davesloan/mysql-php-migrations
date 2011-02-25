@@ -14,6 +14,12 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+// fix date issues
+if (function_exists('date_default_timezone_set'))
+{
+    date_default_timezone_set("UTC");
+}
+
 /**
  * Define the full path to this file.
  */
