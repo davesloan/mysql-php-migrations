@@ -239,14 +239,14 @@ class MpmInitController extends MpmController
 
 		if (file_exists($db_path . 'schema.php'))
 		{
-		    echo "\nPerform build of database after initialization (builds schema\nand runs all existing migrations) [y/N]: ";
-		    $do_build = fgets(STDIN);
-		    $do_build = trim($do_build);
-		    $doBuild = false;
-            if (strcasecmp(substr($do_build, 0, 1), 'y') == 0)
-            {
-                $doBuild = true;
-            }
+			echo "\nPerform build of database after initialization (builds schema\nand runs all existing migrations) [y/N]: ";
+			$do_build = fgets(STDIN);
+			$do_build = trim($do_build);
+			$doBuild = false;
+			if (strcasecmp(substr($do_build, 0, 1), 'y') == 0)
+			{
+				$doBuild = true;
+			}
 		}
 
 		$file = '<?php' . "\n\n";
@@ -256,10 +256,10 @@ class MpmInitController extends MpmController
 		$file .= '$db_config->user = ' . "'" . $user . "';" . "\n";
 		$file .= '$db_config->pass = ' . "'" . $pass . "';" . "\n";
 		$file .= '$db_config->name = ' . "'" . $dbname . "';" . "\n";
-        $file .= '$db_config->db_path = ' . "'" . $db_path . "';" . "\n";
-        $file .= '$db_config->method = ' . $method . ";" . "\n";
-        $file .= '$db_config->migrations_table = ' . "'" . $migrations_table . "';" . "\n";
-        $file .= "\n?>";
+		$file .= '$db_config->db_path = ' . "'" . $db_path . "';" . "\n";
+		$file .= '$db_config->method = ' . $method . ";" . "\n";
+		$file .= '$db_config->migrations_table = ' . "'" . $migrations_table . "';" . "\n";
+		$file .= "\n?>";
 
 		if (file_exists(MPM_PATH . '/config/db_config.php'))
 		{
