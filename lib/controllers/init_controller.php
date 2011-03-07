@@ -62,32 +62,32 @@ class MpmInitController extends MpmController
 			}
 			else
 			{
-			    require(MPM_PATH . '/config/db_config.php');
+				require(MPM_PATH . '/config/db_config.php');
 			}
 		}
 
 		echo "\nEnter a name to use for the table that will hold your migration data [";
 		if (isset($db_config) && isset($db_config->migrations_table))
 		{
-		    echo $db_config->migrations_table;
+			echo $db_config->migrations_table;
 		}
 		else
 		{
-		    echo 'mpm_migrations';
+			echo 'mpm_migrations';
 		}
 		echo ']: ';
 		$migrations_table = fgets(STDIN);
 		$migrations_table = trim($migrations_table);
 		if (empty($migrations_table))
 		{
-    		if (isset($db_config) && isset($db_config->migrations_table))
-    		{
-    		    $migrations_table = $db_config->migrations_table;
-    		}
-    		else
-    		{
-    			$migrations_table = 'mpm_migrations';
-    		}
+			if (isset($db_config) && isset($db_config->migrations_table))
+			{
+				$migrations_table = $db_config->migrations_table;
+			}
+			else
+			{
+				$migrations_table = 'mpm_migrations';
+			}
 		}
 
 
@@ -96,57 +96,57 @@ class MpmInitController extends MpmController
 			echo "\nWhich method would you like to use to connect to\nthe database?  ".MPM_METHOD_PDO."=PDO or ".MPM_METHOD_MYSQLI."=MySQLi";
 			if (isset($db_config))
 			{
-			    echo " [" . $db_config->method . "]";
+				echo " [" . $db_config->method . "]";
 			}
 			echo ": ";
 			$method = fgets(STDIN);
 			$method = trim($method);
 			if (!is_numeric($method))
 			{
-			    $method = 0;
+				$method = 0;
 			}
 			if (empty($method) && isset($db_config))
 			{
-			    $method = $db_config->method;
+				$method = $db_config->method;
 			}
 		} while ($method < MPM_METHOD_PDO || $method > MPM_METHOD_MYSQLI || $method == 0);
 
 		echo "\nEnter your MySQL database hostname or IP address [";
 		if (isset($db_config))
 		{
-		    echo $db_config->host;
+			echo $db_config->host;
 		}
 		else
 		{
-		    echo 'localhost';
+			echo 'localhost';
 		}
 		echo ']: ';
 		$host = fgets(STDIN);
 		$host = trim($host);
 		if (empty($host))
 		{
-    		if (isset($db_config))
-    		{
-    		    $host = $db_config->host;
-    		}
-    		else
-    		{
-    			$host = 'localhost';
-    		}
+			if (isset($db_config))
+			{
+				$host = $db_config->host;
+			}
+			else
+			{
+				$host = 'localhost';
+			}
 		}
 
 		while (empty($port))
 		{
 			echo "\nEnter your MySQL database port [";
-		    if (isset($db_config))
-		    {
-		        echo $db_config->port;
-		    }
-		    else
-		    {
-		        echo '3306';
-		    }
-		    echo ']: ';
+			if (isset($db_config))
+			{
+				echo $db_config->port;
+			}
+			else
+			{
+				echo '3306';
+			}
+			echo ']: ';
 
 			$port = fgets(STDIN);
 			$port = trim($port);
@@ -163,34 +163,34 @@ class MpmInitController extends MpmController
 		while (empty($user))
 		{
 			echo "\nEnter your MySQL database username";
-		    if (isset($db_config))
-		    {
-		        echo ' [', $db_config->user, ']';
-		    }
-		    echo ': ';
+			if (isset($db_config))
+			{
+				echo ' [', $db_config->user, ']';
+			}
+			echo ': ';
 			$user = fgets(STDIN);
 			$user = trim($user);
 			if (empty($user) && isset($db_config))
 			{
-			    $user = $db_config->user;
+				$user = $db_config->user;
 			}
 		}
 
 		echo "\nEnter your MySQL database password (enter - for no password) [";
 		if (isset($db_config))
 		{
-		    echo $db_config->pass;
+			echo $db_config->pass;
 		}
 		echo ']: ';
 		$pass = fgets(STDIN);
 		$pass = trim($pass);
 		if (empty($pass) && isset($db_config))
 		{
-		    $pass = $db_config->pass;
+			$pass = $db_config->pass;
 		}
 		else if ($pass == '-')
 		{
-		    $pass = '';
+			$pass = '';
 		}
 
 
@@ -199,40 +199,40 @@ class MpmInitController extends MpmController
 			echo "\nEnter your MySQL database name";
 			if (isset($db_config))
 			{
-			    echo ' [', $db_config->name, ']';
+				echo ' [', $db_config->name, ']';
 			}
 			echo ': ';
 			$dbname = fgets(STDIN);
 			$dbname = trim($dbname);
 			if (empty($dbname) && isset($db_config))
 			{
-			    $dbname = $db_config->name;
+				$dbname = $db_config->name;
 			}
 		}
 
 		echo "\nEnter the directory where you'd like to store your\nmigration files [";
 		if (isset($db_config))
 		{
-		    echo $db_config->db_path;
-    	}
-    	else
-    	{
-    	    echo MPM_PATH . '/db/';
-    	}
-    	echo ']: ';
+			echo $db_config->db_path;
+		}
+		else
+		{
+			echo MPM_PATH . '/db/';
+		}
+		echo ']: ';
 		$db_path = fgets(STDIN);
 		$db_path = trim($db_path);
 		if (empty($db_path) && isset($db_config))
 		{
-		    $db_path = $db_config->db_path;
+			$db_path = $db_config->db_path;
 		}
 		else if (empty($db_path) && !isset($db_config))
 		{
-		    $db_path = MPM_PATH . '/db/';
+			$db_path = MPM_PATH . '/db/';
 		}
 		if (substr($db_path, strlen($db_path) - 1, 1) != '/')
 		{
-		    $db_path .= '/';
+			$db_path .= '/';
 		}
 
 		$method = (int) $method;
@@ -296,40 +296,40 @@ class MpmInitController extends MpmController
 
 				if (MpmDbHelper::getMethod() == MPM_METHOD_PDO)
 				{
-    				$pdo = MpmDbHelper::getDbObj();
-    				$pdo->beginTransaction();
-    				try
-    				{
-    					$pdo->exec($sql1);
-    					$pdo->exec($sql2);
-    				}
-    				catch (Exception $e)
-    				{
-    					$pdo->rollback();
-    					echo "failure!\n\n" . 'Unable to create required ' . $migrations_table . ' table:' . $e->getMessage();
-    					echo "\n\n";
-    					exit;
-    				}
-    				$pdo->commit();
-			    }
-			    else
-			    {
-			        $mysqli = MpmDbHelper::getDbObj();
-			        $mysqli->query($sql1);
-			        if ($mysqli->errno)
-			        {
-    					echo "failure!\n\n" . 'Unable to create required ' . $migrations_table . ' table:' . $mysqli->error;
-    					echo "\n\n";
-    					exit;
-			        }
-		            $mysqli->query($sql2);
-			        if ($mysqli->errno)
-			        {
-    					echo "failure!\n\n" . 'Unable to create required ' . $migrations_table . ' table:' . $mysqli->error;
-    					echo "\n\n";
-    					exit;
-			        }
-			    }
+					$pdo = MpmDbHelper::getDbObj();
+					$pdo->beginTransaction();
+					try
+					{
+						$pdo->exec($sql1);
+						$pdo->exec($sql2);
+					}
+					catch (Exception $e)
+					{
+						$pdo->rollback();
+						echo "failure!\n\n" . 'Unable to create required ' . $migrations_table . ' table:' . $e->getMessage();
+						echo "\n\n";
+						exit;
+					}
+					$pdo->commit();
+				}
+				else
+				{
+					$mysqli = MpmDbHelper::getDbObj();
+					$mysqli->query($sql1);
+					if ($mysqli->errno)
+					{
+						echo "failure!\n\n" . 'Unable to create required ' . $migrations_table . ' table:' . $mysqli->error;
+						echo "\n\n";
+						exit;
+					}
+					$mysqli->query($sql2);
+					if ($mysqli->errno)
+					{
+						echo "failure!\n\n" . 'Unable to create required ' . $migrations_table . ' table:' . $mysqli->error;
+						echo "\n\n";
+						exit;
+					}
+				}
 				echo "done.\n\n";
 			}
 			else
@@ -347,9 +347,9 @@ class MpmInitController extends MpmController
 
 		if (isset($doBuild) && $doBuild === true)
 		{
-		    $obj = new MpmBuildController();
-		    $obj->build();
-		    echo "\n\n";
+			$obj = new MpmBuildController();
+			$obj->build();
+			echo "\n\n";
 		}
 
 		echo "Initalization complete!  Type 'php migrate.php help' for a list of commands.\n\n";
