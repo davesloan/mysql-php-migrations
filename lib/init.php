@@ -50,6 +50,14 @@ if (!defined('MPM_METHOD_MYSQLI'))
     define('MPM_METHOD_MYSQLI', 2);
 }
 
+if (!defined('STDIN'))
+{
+    /**
+     * In some cases STDIN built-in can be undefined
+     */
+    define('STDIN', fopen("php://stdin","r"));
+}
+
 /**
  * Include the MpmClassUndefinedException class.
  */
