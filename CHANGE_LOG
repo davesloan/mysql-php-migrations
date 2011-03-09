@@ -1,3 +1,17 @@
+= VERSION 2.1.4 =
+  * fixed: incorporated bug fix from denis-bykov: STDIN built-in constant can be undefined causing the init controller to enter an infinite loop
+  * fixed: removed test data from schema.php and test_data.php
+  * fixed: updated the neglected CHANGE_LOG ;)
+
+= VERSION 2.1.3 =
+  * fixed: versioning error
+
+= VERSION 2.1.2 =
+  * fixed: simplified header
+
+= VERSION 2.1.1 =
+  * fixed: PHP 5.3 strict errors
+
 = VERSION 2.1.0 =
   * new: added option to build command to add test data to the database after the build is complete (build with_data)
   * new: added ability to specify the name of the migrations table during initialization (issue 5)
