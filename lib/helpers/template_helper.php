@@ -57,9 +57,9 @@ class MpmTemplateHelper
 		}
 
 		// has the file been customized?
-		if (file_exists($db_config->db_path . $file))
+		if (file_exists($db_config->db_path . 'templates/' . $file))
 		{
-			$contents = file_get_contents($db_config->db_path . $file);
+			$contents = file_get_contents($db_config->db_path . 'templates/' . $file);
 		}
 		else
 		{
