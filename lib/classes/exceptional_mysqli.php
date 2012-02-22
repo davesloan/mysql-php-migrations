@@ -52,9 +52,13 @@ class ExceptionalMysqli extends mysqli
      */
     public function query($query, $resultMode = MYSQLI_STORE_RESULT, $is_internal = false)
     {
+		if (!$is_internal) {
+			// Log to sql log file
+			MpmSqlLogger::log_to_file($query);
+		}
+
 		if ($this->dryrun) {
 			if (!$is_internal) {
-				// TODO
 				echo "\nSQL: " . $query . "\n";
 			}
 			return true;

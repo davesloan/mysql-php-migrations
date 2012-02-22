@@ -82,4 +82,7 @@ if (function_exists('__autoload'))
 // add custom library autoloader to the stack
 spl_autoload_register('MpmAutoloadHelper::load');
 
+// Remove SQL log file if any
+MpmSqlLogger::remove_file();
+
 ?>
