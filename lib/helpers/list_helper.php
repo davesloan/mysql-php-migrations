@@ -139,7 +139,7 @@ class MpmListHelper
                     foreach ($files as $file)
                     {
                         $stmt->bind_param('s', $file->timestamp);
-                        $result = $stmt->execute();
+                        $result = $mysqli->internal_statement_execute($stmt);
                         if ($result === false)
                         {
                             throw new Exception('Unable to execute query to update file list.');
@@ -165,7 +165,7 @@ class MpmListHelper
                         if (!in_array($obj->timestamp, $file_timestamps) && $obj->active == 0)
                         {
                             $stmt->bind_param('i', $obj->id);
-                            $result = $stmt->execute();
+                            $result = $result = $mysqli->internal_statement_execute($stmt);
                             if ($result === false)
                             {
                                 throw new Exception('Unable to execute query to remove stale files from the list.');

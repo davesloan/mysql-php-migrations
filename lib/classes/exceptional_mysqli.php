@@ -109,6 +109,15 @@ class ExceptionalMysqli extends mysqli
 			parent::commit();
 		}
 	}
+
+	public function internal_statement_execute(mysqli_stmt $stmt) {
+		if (!$this->dryrun) {
+			return $stmt->execute();
+		} else {
+			return true;
+		}
+	}
+
 }
 
 
