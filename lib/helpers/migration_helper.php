@@ -66,8 +66,22 @@ class MpmMigrationHelper
 	 *
 	 * @return void
 	 */
-	static public function runMigration(&$obj, $method = 'up', $forced = false)
+
+	/**
+	 * @static
+	 * @param object $obj		a simple object with migration information (from a migration list)
+	 * @param string $method
+	 * @param array $options
+	 * @return mixed
+	 */
+	static public function runMigration(&$obj, $method = 'up', array $options = array())
 	{
+		// if true, exceptions will not cause the script to exit
+		$forced = isset($options['forced']) ? $options['forced'] : false;
+
+		// if true, only echo back the SQL to be run
+		$dryrun = isset($options['dryrun']) ? $options['dryrun'] : false;
+
     	$db_config = $GLOBALS['db_config'];
     	$migrations_table = $db_config->migrations_table;
 		$filename = MpmStringHelper::getFilenameFromTimestamp($obj->timestamp);
@@ -92,6 +106,11 @@ class MpmMigrationHelper
         {
             $dbObj = MpmDbHelper::getMysqliObj();
         }
+
+		if ($dryrun) {
+			$dbObj->dryrun = true;
+		}
+
    		$dbObj->beginTransaction();
 		if ($method == 'down')
 		{

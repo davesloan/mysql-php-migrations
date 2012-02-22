@@ -53,13 +53,9 @@ class MpmDownController extends MpmController
 		{
 		    $down_to = -1;
 		}
-		
-		// are we forcing this?
-		$forced = false;
-		if (isset($this->arguments[1]) && strcasecmp($this->arguments[1], '--force') == 0)
-		{
-		    $forced = true;
-		}
+
+		// parse other optional arguments
+		list($forced, $dryrun) = $this->parse_options($this->arguments);
 		
 		// get list of migrations and the current migration number
 		$list = MpmMigrationHelper::getListOfMigrations($down_to, 'down');
@@ -78,7 +74,7 @@ class MpmDownController extends MpmController
 		
 		foreach ($list as $id => $obj)
 		{
-			MpmMigrationHelper::runMigration($obj, 'down', $forced);
+			MpmMigrationHelper::runMigration($obj, 'down', array('forced' => $forced, 'dryrun' => $dryrun));
 		}
 		
 		MpmMigrationHelper::setCurrentMigration($down_to);
@@ -98,7 +94,7 @@ class MpmDownController extends MpmController
 	public function displayHelp()
 	{
 		$obj = MpmCommandLineWriter::getInstance();
-		$obj->addText('./migrate.php down [migration #] [--force]');
+		$obj->addText('./migrate.php down [migration #] [--force|-f] [--dry-run|-p]');
 		$obj->addText(' ');
 		$obj->addText('This command is used to migrate down to a previous version.  You can get a list of all of the migrations available by using the list command.');
 		$obj->addText(' ');

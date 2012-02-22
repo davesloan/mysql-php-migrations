@@ -16,6 +16,7 @@
  */
 class ExceptionalMysqli extends mysqli
 {
+	public $dryrun = false;
 
     /**
      * Object constructor.
@@ -50,12 +51,19 @@ class ExceptionalMysqli extends mysqli
      */
     public function query($query, $resultMode = MYSQLI_STORE_RESULT)
     {
-        $result = parent::query($query, $resultMode);
-        if ($this->errno)
-        {
-            throw new MpmMalformedQueryException($this->error);
-        }
-        return $result;
+		if ($this->dryrun) {
+			// TODO
+			echo "\nSQL: " . $query . "\n";
+			return true;
+
+		} else {
+			$result = parent::query($query, $resultMode);
+			if ($this->errno)
+			{
+				throw new MpmMalformedQueryException($this->error);
+			}
+			return $result;
+		}
     }
     
     /**
@@ -65,8 +73,11 @@ class ExceptionalMysqli extends mysqli
      */
     public function beginTransaction()
     {
-        $this->autocommit(false);
-        return;
+		if (!$this->dryrun) {
+			$this->autocommit(false);
+		}
+
+		return;
     }
 
     /**
@@ -81,6 +92,11 @@ class ExceptionalMysqli extends mysqli
         return $this->query($sql);
     }
 
+	public function commit() {
+		if (!$this->dryrun) {
+			parent::commit();
+		}
+	}
 }
 
 

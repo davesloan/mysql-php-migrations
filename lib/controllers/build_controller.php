@@ -16,6 +16,10 @@
  */
 class MpmBuildController extends MpmController
 {
+	/**
+	 * @var MpmCommandLineWriter
+	 */
+	protected $clw;
 
 	/**
 	 * Determines what action should be performed and takes that action.
@@ -36,84 +40,43 @@ class MpmBuildController extends MpmController
 		// make sure system is init'ed
 		MpmDbHelper::test();
 
-		$clw = MpmCommandLineWriter::getInstance();
-
-        $forced = false;
-
-        $with_data = false;
+		$this->clw = MpmCommandLineWriter::getInstance();
+        $with_data = $forced = $dryrun = false;
 
         // are we adding a schema file?
-        if (isset($this->arguments[0]) && $this->arguments[0] == 'add')
-        {
-            // make sure the schema file doesn't exist
-            if (file_exists(MPM_DB_PATH . 'schema.php') || file_exists(MPM_DB_PATH . 'test_data.php'))
-            {
-                $clw->addText('The schema and/or test data files already exist.  Delete them first if you want to use this option.');
-                $clw->write();
-                exit;
-            }
-            $file = MpmTemplateHelper::getTemplate('schema.txt');
-            $test_data_file = MpmTemplateHelper::getTemplate('test_data.txt');
+		if (isset($this->arguments[0])) {
+			if ($this->arguments[0] == 'add') {
+				$this->add();
+				// stop here
+				exit;
 
-		    $fp = fopen(MPM_DB_PATH . 'schema.php', "w");
-		    if ($fp == false)
-		    {
-			    echo "\nUnable to write to file.  Initialization failed!\n\n";
-			    exit;
-		    }
-		    $success = fwrite($fp, $file);
-		    if ($success == false)
-		    {
-			    echo "\nUnable to write to file.  Initialization failed!\n\n";
-			    exit;
-		    }
-		    fclose($fp);
+			} else if ($this->arguments[0] == 'with_data') {
+				$with_data = true;
 
-		    $fp = fopen(MPM_DB_PATH . 'test_data.php', "w");
-		    if ($fp == false)
-		    {
-			    echo "\nUnable to write to file.  Initialization failed!\n\n";
-			    exit;
-		    }
-		    $success = fwrite($fp, $test_data_file);
-		    if ($success == false)
-		    {
-			    echo "\nUnable to write to file.  Initialization failed!\n\n";
-			    exit;
-		    }
-		    fclose($fp);
+				// remove the first 'with_data'
+				array_shift($this->arguments);
+			}
+		}
 
-		    $clw->addText('File ' . MPM_DB_PATH . 'schema.php has been created.');
-		    $clw->addText('File ' . MPM_DB_PATH . 'test_data.php has been created.');
-		    $clw->write();
-            exit;
-
-        }
-        else if (isset($this->arguments[0]) && $this->arguments[0] == 'with_data')
-        {
-            $with_data = true;
-        }
-        else if (isset($this->arguments[0]) && $this->arguments[0] == '--force')
-        {
-            $forced = true;
-        }
+		// parse other optional arguments
+		list($forced, $dryrun) = $this->parse_options($this->arguments);
 
         // make sure the schema file exists
         if (!file_exists(MPM_DB_PATH . 'schema.php'))
         {
-            $clw->addText('The schema file does not exist.  Run this command with the "add" argument to create one (only a stub).');
-            $clw->write();
+            $this->clw->addText('The schema file does not exist.  Run this command with the "add" argument to create one (only a stub).');
+            $this->clw->write();
             exit;
         }
         // make sure the test data file exists
         if ($with_data == true && !file_exists(MPM_DB_PATH . 'test_data.php'))
         {
-            $clw->addText('The test data file does not exist.  Run this command with the "add" argument to create one (only a stub).');
-            $clw->write();
+            $this->clw->addText('The test data file does not exist.  Run this command with the "add" argument to create one (only a stub).');
+            $this->clw->write();
             exit;
         }
 
-        $clw->writeHeader();
+        $this->clw->writeHeader();
 
         if (!$forced)
         {
@@ -125,17 +88,63 @@ class MpmBuildController extends MpmController
 		    if (empty($answer) || substr($answer, 0, 1) == 'n')
 		    {
 			    echo "\nABORTED!\n\n";
-			    $clw->writeFooter();
+			    $this->clw->writeFooter();
 			    exit;
 		    }
 		}
 
         echo "\n";
-        $this->build($with_data);
+        $this->build($with_data, $this->arguments);
 
-        $clw->writeFooter();
+        $this->clw->writeFooter();
         exit;
+	}
 
+	/**
+	 * Create an empty stub for the schema.php file
+	 */
+	protected function add() {
+		// make sure the schema file doesn't exist
+		if (file_exists(MPM_DB_PATH . 'schema.php') || file_exists(MPM_DB_PATH . 'test_data.php'))
+		{
+			$this->clw->addText('The schema and/or test data files already exist.  Delete them first if you want to use this option.');
+			$this->clw->write();
+			exit;
+		}
+		$file = MpmTemplateHelper::getTemplate('schema.txt');
+		$test_data_file = MpmTemplateHelper::getTemplate('test_data.txt');
+
+		$fp = fopen(MPM_DB_PATH . 'schema.php', "w");
+		if ($fp == false)
+		{
+			echo "\nUnable to write to file.  Initialization failed!\n\n";
+			exit;
+		}
+		$success = fwrite($fp, $file);
+		if ($success == false)
+		{
+			echo "\nUnable to write to file.  Initialization failed!\n\n";
+			exit;
+		}
+		fclose($fp);
+
+		$fp = fopen(MPM_DB_PATH . 'test_data.php', "w");
+		if ($fp == false)
+		{
+			echo "\nUnable to write to file.  Initialization failed!\n\n";
+			exit;
+		}
+		$success = fwrite($fp, $test_data_file);
+		if ($success == false)
+		{
+			echo "\nUnable to write to file.  Initialization failed!\n\n";
+			exit;
+		}
+		fclose($fp);
+
+		$this->clw->addText('File ' . MPM_DB_PATH . 'schema.php has been created.');
+		$this->clw->addText('File ' . MPM_DB_PATH . 'test_data.php has been created.');
+		$this->clw->write();
 	}
 
 	/**
@@ -146,12 +155,10 @@ class MpmBuildController extends MpmController
 	 * @uses MpmSchema::build()
 	 * @uses MpmLatestController::doAction()
 	 * @uses MPM_DB_PATH
-	 *
-	 * @param bool $with_data whether or not to run the test_data.php file after build
-	 *
-	 * @return void
+	 * @param bool $with_data	whether or not to run the test_data.php file after build
+	 * @param array $arguments	command line arguments to be passed to 'up' action controller
 	 */
-	public function build($with_data)
+	public function build($with_data, $arguments)
 	{
 	    require_once(MPM_DB_PATH . 'schema.php');
 	    $obj = new MpmInitialSchema();
@@ -171,8 +178,8 @@ class MpmBuildController extends MpmController
 			else
 			{
 				$to_id = MpmMigrationHelper::getLatestMigration();
-				$obj = new MpmUpController('up', array ( $to_id, $forced ));
-	    		$obj->doAction($quiet);
+				$obj = new MpmUpController('up', array_merge(array($to_id), $arguments));
+	    		$obj->doAction();
 			}
 		}
 		catch (Exception $e)
@@ -218,7 +225,7 @@ class MpmBuildController extends MpmController
 		$obj->addText('Valid Examples:');
 		$obj->addText('./migrate.php build add', 4);
 		$obj->addText('./migrate.php build with_data', 4);
-		$obj->addText('./migrate.php build with_data --force', 4);
+		$obj->addText('./migrate.php build with_data [--force|-f] [--dry-run|-p]', 4);
 		$obj->write();
 	}
 
