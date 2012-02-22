@@ -67,9 +67,9 @@ abstract class MpmSchema
         if ($totalTables > 1)
         {
         	echo '  Disabling foreign key restrictions...';
- 			$this->dbObj->exec('SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0');
-	 		$this->dbObj->exec('SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0');
-	 		$this->dbObj->exec("SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL'");
+ 			$this->dbObj->internal_exec('SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0');
+	 		$this->dbObj->internal_exec('SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0');
+	 		$this->dbObj->internal_exec("SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL'");
 	 		echo " done.\n";
             echo '  Removing:', "\n";
 		    foreach ($tables as $table)
@@ -77,13 +77,13 @@ abstract class MpmSchema
 		        if ($table != $migrations_table)
 		        {
             		echo '        ', $table, "\n";
-		            $this->dbObj->exec('DROP TABLE IF EXISTS `' . $table . '`');
+		            $this->dbObj->internal_exec('DROP TABLE IF EXISTS `' . $table . '`');
                 }
 		    }
         	echo '  Re-enabling foreign key restrictions...';
- 			$this->dbObj->exec('SET SQL_MODE=@OLD_SQL_MODE');
-	 		$this->dbObj->exec('SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS');
-	 		$this->dbObj->exec('SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS');
+ 			$this->dbObj->internal_exec('SET SQL_MODE=@OLD_SQL_MODE');
+	 		$this->dbObj->internal_exec('SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS');
+	 		$this->dbObj->internal_exec('SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS');
         	echo " done.\n";
         }
 		else
@@ -105,7 +105,7 @@ abstract class MpmSchema
     	$db_config = $GLOBALS['db_config'];
     	$migrations_table = $db_config->migrations_table;
     	echo 'Clearing out existing migration data... ';
-        $this->dbObj->exec('TRUNCATE TABLE `' . $migrations_table . '`');
+        $this->dbObj->internal_exec('TRUNCATE TABLE `' . $migrations_table . '`');
 		echo 'done.', "\n\n", 'Rebuilding migration data... ';
         MpmListHelper::mergeFilesWithDb();
         echo 'done.', "\n";
@@ -115,9 +115,9 @@ abstract class MpmSchema
             $result = MpmDbHelper::doSingleRowSelect('SELECT COUNT(*) AS total FROM `'.$migrations_table.'` WHERE `timestamp` = "'.$this->initialMigrationTimestamp.'"', $this->dbObj);
             if ($result->total == 1)
             {
-                $this->dbObj->exec('UPDATE `'.$migrations_table.'` SET `is_current` = 0');
-                $this->dbObj->exec('UPDATE `'.$migrations_table.'` SET `is_current` = 1 WHERE `timestamp` = "'.$this->initialMigrationTimestamp.'"');
-                $this->dbObj->exec('UPDATE `'.$migrations_table.'` SET `active` = 1 WHERE `timestamp` <= "'.$this->initialMigrationTimestamp.'"');
+                $this->dbObj->internal_exec('UPDATE `'.$migrations_table.'` SET `is_current` = 0');
+                $this->dbObj->internal_exec('UPDATE `'.$migrations_table.'` SET `is_current` = 1 WHERE `timestamp` = "'.$this->initialMigrationTimestamp.'"');
+                $this->dbObj->internal_exec('UPDATE `'.$migrations_table.'` SET `active` = 1 WHERE `timestamp` <= "'.$this->initialMigrationTimestamp.'"');
             }
             echo 'done.', "\n";
         }

@@ -107,7 +107,7 @@ class MpmUpController extends MpmController
 	public function displayHelp()
 	{
 		$obj = MpmCommandLineWriter::getInstance();
-		$obj->addText('./migrate.php up [migration #] [--force|-f] [--dry-run|-p]');
+		$obj->addText('./migrate.php up <migration #> [--force|-f] [--dry-run|-p]');
 		$obj->addText(' ');
 		$obj->addText('This command is used to migrate up to a newer version.  You can get a list of all of the migrations available by using the list command.');
 		$obj->addText(' ');

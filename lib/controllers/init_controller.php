@@ -300,8 +300,8 @@ class MpmInitController extends MpmController
     				$pdo->beginTransaction();
     				try
     				{
-    					$pdo->exec($sql1);
-    					$pdo->exec($sql2);
+    					$pdo->internal_exec($sql1);
+    					$pdo->internal_exec($sql2);
     				}
     				catch (Exception $e)
     				{
@@ -315,14 +315,14 @@ class MpmInitController extends MpmController
 			    else
 			    {
 			        $mysqli = MpmDbHelper::getDbObj();
-			        $mysqli->query($sql1);
+			        $mysqli->internal_exec($sql1);
 			        if ($mysqli->errno)
 			        {
     					echo "failure!\n\n" . 'Unable to create required ' . $migrations_table . ' table:' . $mysqli->error;
     					echo "\n\n";
     					exit;
 			        }
-		            $mysqli->query($sql2);
+		            $mysqli->internal_exec($sql2);
 			        if ($mysqli->errno)
 			        {
     					echo "failure!\n\n" . 'Unable to create required ' . $migrations_table . ' table:' . $mysqli->error;

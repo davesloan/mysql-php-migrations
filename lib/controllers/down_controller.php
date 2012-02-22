@@ -94,7 +94,7 @@ class MpmDownController extends MpmController
 	public function displayHelp()
 	{
 		$obj = MpmCommandLineWriter::getInstance();
-		$obj->addText('./migrate.php down [migration #] [--force|-f] [--dry-run|-p]');
+		$obj->addText('./migrate.php down <migration #> [--force|-f] [--dry-run|-p]');
 		$obj->addText(' ');
 		$obj->addText('This command is used to migrate down to a previous version.  You can get a list of all of the migrations available by using the list command.');
 		$obj->addText(' ');

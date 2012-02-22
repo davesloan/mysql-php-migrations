@@ -46,14 +46,17 @@ class ExceptionalMysqli extends mysqli
      *
      * @param string $query      the SQL query to send to MySQL
      * @param int    $resultMode Either the constant MYSQLI_USE_RESULT or MYSQLI_STORE_RESULT depending on the desired behavior
+	 * @param bool   $is_internal set to true for internal SQL calls which won't each SQL back when in dry run mode
      *
      * @return mysqli_result
      */
-    public function query($query, $resultMode = MYSQLI_STORE_RESULT)
+    public function query($query, $resultMode = MYSQLI_STORE_RESULT, $is_internal = false)
     {
 		if ($this->dryrun) {
-			// TODO
-			echo "\nSQL: " . $query . "\n";
+			if (!$is_internal) {
+				// TODO
+				echo "\nSQL: " . $query . "\n";
+			}
 			return true;
 
 		} else {
@@ -65,7 +68,11 @@ class ExceptionalMysqli extends mysqli
 			return $result;
 		}
     }
-    
+
+	public function internal_query($query, $resultMode = MYSQLI_STORE_RESULT) {
+		return $this->query($query, $resultMode, true);
+	}
+
     /**
      * Turns off auto commit.
      *
@@ -84,13 +91,18 @@ class ExceptionalMysqli extends mysqli
      * Same as mysqli::query
      *
      * @uses ExceptionalMysqli::query()
-     *
-     * @return mysqli_result
-     */
+	 *
+	 * @param string $sql
+	 * @return mysqli_result
+	 */
     public function exec($sql)
     {
         return $this->query($sql);
     }
+
+	public function internal_exec($sql) {
+		return $this->internal_query($sql);
+	}
 
 	public function commit() {
 		if (!$this->dryrun) {

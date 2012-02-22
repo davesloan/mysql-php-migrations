@@ -116,11 +116,11 @@ class MpmDbHelper
             switch (MpmDbHelper::getMethod())
             {
                 case MPM_METHOD_PDO:
-                    $stmt = $db->query($sql);
+                    $stmt = $db->internal_query($sql);
                     $obj = $stmt->fetch(PDO::FETCH_OBJ);
                     return $obj;
                 case MPM_METHOD_MYSQLI:
-                    $stmt = $db->query($sql);
+                    $stmt = $db->internal_query($sql);
                     $obj = $stmt->fetch_object();
                     return $obj;
                 default:
@@ -155,14 +155,14 @@ class MpmDbHelper
             switch (MpmDbHelper::getMethod())
             {
                 case MPM_METHOD_PDO:
-                    $stmt = $db->query($sql);
+                    $stmt = $db->internal_query($sql);
                     while ($obj = $stmt->fetch(PDO::FETCH_OBJ))
                     {
                         $results[] = $obj;
                     }
                     return $results;
                 case MPM_METHOD_MYSQLI:
-                    $stmt = $db->query($sql);
+                    $stmt = $db->internal_query($sql);
                     while($obj = $stmt->fetch_object())
                     {
                         $results[] = $obj;
@@ -313,7 +313,7 @@ class MpmDbHelper
 		    case MPM_METHOD_PDO:
         	    try
         	    {
-            		foreach ($dbObj->query($sql) as $row)
+            		foreach ($dbObj->internal_query($sql) as $row)
             		{
             			$tables[] = $row[0];
             		}
@@ -325,7 +325,7 @@ class MpmDbHelper
         	case MPM_METHOD_MYSQLI:
 			    try
 			    {
-				    $result = $dbObj->query($sql);
+				    $result = $dbObj->internal_query($sql);
 				    while ($row = $result->fetch_array())
 				    {
 					    $tables[] = $row[0];

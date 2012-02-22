@@ -90,7 +90,7 @@ class MpmListHelper
                     foreach ($files as $file)
                     {
                         $sql = "INSERT IGNORE INTO `{$migrations_table}` ( `timestamp`, `active`, `is_current` ) VALUES ( '{$file->timestamp}', 0, 0 )";
-                        $pdo->exec($sql);
+                        $pdo->internal_exec($sql);
                     }
                 }
                 catch (Exception $e)
@@ -112,7 +112,7 @@ class MpmListHelper
                         if (!in_array($obj->timestamp, $file_timestamps) && $obj->active == 0)
                         {
                             $sql = "DELETE FROM `{$migrations_table}` WHERE `id` = '{$obj->id}'";
-                            $pdo->exec($sql);
+                            $pdo->internal_exec($sql);
                         }
                     }
                 }
