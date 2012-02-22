@@ -212,34 +212,47 @@ class MpmListHelper
 	 *
 	 * @return array
 	 */
-	static public function getListOfFiles($sort = 'old')
-	{
+	static public function getListOfFiles($sort = 'old') {
 		$list = array();
-		if ($sort == 'new')
-		{
-			$sort_order = 1;
-		}
-		else
-		{
-			$sort_order = 0;
-		}
-		$files = scandir(MPM_DB_PATH, $sort_order);
-		foreach ($files as $file)
-		{
-			$full_file = MPM_DB_PATH . $file;
-			if ($file != 'schema.php' && $file != '.' && $file != '..' && !is_dir($full_file) && stripos($full_file, '.php') !== false)
-			{
-                $timestamp = MpmStringHelper::getTimestampFromFilename($file);
-                if ($timestamp !== null)
-                {
+
+		$exclude_list = array(
+			"templates\/",
+			"schema\.php$",
+			"test_data\.php$"
+		);
+
+		$exclude_list_pattern = implode("|", $exclude_list);
+
+		// SKIP_DOTS (. / ..) suppose to be included by default, but apparently not;
+		$dir_iter = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator(MPM_DB_PATH,
+				FilesystemIterator::KEY_AS_PATHNAME | FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS));
+
+		foreach ($dir_iter as $file) {
+			$file_name = $file->getFilename();	// abc.js
+			$file_local_path = $file->getPathName();	// /home/www/dev/jscommon/test/abc.js
+
+			if (preg_match('/\.php$/i', $file_name) && !preg_match('/' . $exclude_list_pattern . '/i', $file_name)) {
+				$timestamp = MpmStringHelper::getTimestampFromFilename($file_name);
+
+				if ($timestamp !== null) {
 					$obj = (object) array();
+
 					$obj->timestamp = $timestamp;
-					$obj->filename = $file;
-					$obj->full_file = $full_file;
-					$list[] = $obj;
-                }
+					$obj->filename = $file_name;
+					$obj->full_file = $file_local_path;
+					$list[strtotime($timestamp)] = $obj;
+				}
 			}
+		} // foreach
+
+		// sort by timestamp
+		if ($sort == 'new') {
+			krsort($list, SORT_NUMERIC);
+		} else { // 'old'
+			ksort($list, SORT_NUMERIC);
 		}
+
 		return $list;
 	}
 
