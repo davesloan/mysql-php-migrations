@@ -8,7 +8,16 @@
  * @link       http://code.google.com/p/mysql-php-migrations/
  */
 
-if (file_exists(MPM_PATH . '/config/db_config.php'))
+if (file_exists('./migration_config.php')) {
+  
+  echo 'Using local config from ' . realpath('./migration_config.php') . "\n";
+
+  /**
+	 * Include the database connection from current directory.
+	 */
+	require_once('./migration_config.php');
+} 
+elseif (file_exists(MPM_PATH . '/config/db_config.php'))
 {
 	/**
 	 * Include the database connection info.
