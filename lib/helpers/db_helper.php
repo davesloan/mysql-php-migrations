@@ -339,7 +339,8 @@ class MpmDbHelper
 	public static function get_db_config($stop_if_not_found = true) {
 		if (!isset($GLOBALS['db_config'])) {
 			if ($stop_if_not_found) {
-				throw new MpmConfigurationFileException('Missing database configuration.');
+				echo "\nMissing database configuration. Please run './migrate.php init' first!\n\n";
+				exit;
 			} else {
 				return false;
 			}
