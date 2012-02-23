@@ -67,7 +67,7 @@ abstract class MpmSchema
 		if ($this->dryrun) {
 			echo '  No tables need to be removed for dry-run.', "\n";
 		} else {
-			$db_config = $GLOBALS['db_config'];
+			$db_config = MpmDbHelper::get_db_config();
 			$migrations_table = $db_config->migrations_table;
 			echo 'Looking for existing tables... ';
 			$tables = MpmDbHelper::getTables($this->dbObj);
@@ -116,7 +116,7 @@ abstract class MpmSchema
 		if ($this->dryrun) {
 			echo "No clear out existing migration data for dry-run.\n";
 		} else {
-			$db_config = $GLOBALS['db_config'];
+			$db_config = MpmDbHelper::get_db_config();
 			$migrations_table = $db_config->migrations_table;
 			echo 'Clearing out existing migration data... ';
 			$this->dbObj->internal_exec('TRUNCATE TABLE `' . $migrations_table . '`');

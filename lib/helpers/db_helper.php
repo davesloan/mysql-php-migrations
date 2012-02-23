@@ -58,7 +58,7 @@ class MpmDbHelper
 			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 			PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true
 		);
-        $db_config = $GLOBALS['db_config'];
+        $db_config = MpmDbHelper::get_db_config();
 		return new PDO("mysql:host={$db_config->host};port={$db_config->port};dbname={$db_config->name}", $db_config->user, $db_config->pass, $pdo_settings);
     }
 
@@ -71,7 +71,7 @@ class MpmDbHelper
      */
     static public function getMysqliObj()
     {
-        $db_config = $GLOBALS['db_config'];
+        $db_config = MpmDbHelper::get_db_config();
         return new ExceptionalMysqli($db_config->host, $db_config->user, $db_config->pass, $db_config->name, $db_config->port);
     }
 
@@ -84,11 +84,7 @@ class MpmDbHelper
      */
     static public function getMethod()
     {
-		if (!isset($GLOBALS['db_config']))
-		{
-			throw new Exception('Missing database configuration.');
-		}
-		$db_config = $GLOBALS['db_config'];
+		$db_config = MpmDbHelper::get_db_config();
 		return $db_config->method;
     }
 
@@ -278,12 +274,13 @@ class MpmDbHelper
 	 */
 	static public function checkForDbTable()
 	{
-		$db_config = $GLOBALS['db_config'];
-		$migrations_table = $db_config->migrations_table;
+		$db_config = MpmDbHelper::get_db_config();
+
 		if (isset($db_config->migrations_table))
 		{
 			$migrations_table = $db_config->migrations_table;
 		}
+
 	    $tables = MpmDbHelper::getTables();
 		if (count($tables) == 0 || !in_array($migrations_table, $tables))
 	    {
@@ -337,6 +334,18 @@ class MpmDbHelper
 			    break;
 		}
 		return $tables;
+	}
+
+	public static function get_db_config($stop_if_not_found = true) {
+		if (!isset($GLOBALS['db_config'])) {
+			if ($stop_if_not_found) {
+				throw new MpmConfigurationFileException('Missing database configuration.');
+			} else {
+				return false;
+			}
+		} else {
+			return $GLOBALS['db_config'];
+		}
 	}
 
 }

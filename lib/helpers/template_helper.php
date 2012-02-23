@@ -46,12 +46,10 @@ class MpmTemplateHelper
 	 */
 	static public function getTemplate($file, $vars = array())
 	{
-		if (isset($GLOBALS['db_config']))
-		{
-			$db_config = $GLOBALS['db_config'];
-		}
-		else
-		{
+		// don't raise exception
+		$db_config = MpmDbHelper::get_db_config(false);
+
+		if (!$db_config) {
 			$db_config = new stdClass();
 			$db_config->db_path = MPM_PATH . '/lib/templates/';
 		}

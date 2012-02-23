@@ -26,7 +26,7 @@ class MpmListHelper
      */
     static function getTotalMigrations()
     {
-    	$db_config = $GLOBALS['db_config'];
+    	$db_config = MpmDbHelper::get_db_config();
     	$migrations_table = $db_config->migrations_table;
     	$sql = "SELECT COUNT(*) AS total FROM `{$migrations_table}`";
         $obj = MpmDbHelper::doSingleRowSelect($sql);
@@ -45,7 +45,7 @@ class MpmListHelper
      */
     static function getFullList($startIdx = 0, $total = 30)
     {
-    	$db_config = $GLOBALS['db_config'];
+    	$db_config = MpmDbHelper::get_db_config();
     	$migrations_table = $db_config->migrations_table;
     	$list = array();
         $sql = "SELECT * FROM `{$migrations_table}` ORDER BY `timestamp`";
@@ -73,7 +73,7 @@ class MpmListHelper
      */
     static function mergeFilesWithDb()
     {
-    	$db_config = $GLOBALS['db_config'];
+    	$db_config = MpmDbHelper::get_db_config();
     	$migrations_table = $db_config->migrations_table;
     	$files = MpmListHelper::getListOfFiles();
         $total_migrations = MpmListHelper::getTotalMigrations();
@@ -287,7 +287,7 @@ class MpmListHelper
 	 */
 	static public function getListFromDb($latestTimestamp, $direction = 'up')
 	{
-    	$db_config = $GLOBALS['db_config'];
+    	$db_config = MpmDbHelper::get_db_config();
     	$migrations_table = $db_config->migrations_table;
 		if ($direction == 'down')
 		{
