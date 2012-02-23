@@ -312,6 +312,37 @@ class MpmListHelper
 		return $list;
 	}
 
+	/**
+	 * From: http://www.php.net/manual/en/function.glob.php#106595
+	 *
+	 * @static
+	 * @param $pattern
+	 * @param int $flags
+	 * @return array
+	 */
+	static private function glob_recursive($pattern, $flags = 0) {
+		$files = glob($pattern, $flags);
+
+		foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
+			$files = array_merge($files, self::glob_recursive($dir.'/'.basename($pattern), $flags));
+		}
+
+		return $files;
+	}
+
+	static public function get_migration_file($file_name) {
+		$result = self::glob_recursive($file_name);
+
+		if (count($result) == 0) {
+			// no file found
+			return false;
+		} else if (count($result) > 1) {
+			// found multiple files! how come!
+			throw new MpmMigrationFileErrorException();
+		} else {
+			return $result[0];
+		}
+	}
 }
 
 ?>

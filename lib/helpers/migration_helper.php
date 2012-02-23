@@ -87,16 +87,19 @@ class MpmMigrationHelper
 		$filename = MpmStringHelper::getFilenameFromTimestamp($obj->timestamp);
 		$classname = 'Migration_' . str_replace('.php', '', $filename);
 
+
+
 	    // make sure the file exists; if it doesn't, skip it but display a message
-	    if (!file_exists(MPM_DB_PATH . $filename))
-	    {
-	        echo "\n\tMigration " . $obj->timestamp . ' (ID '.$obj->id.') skipped - file missing.';
-	        return;
-	    }
+		$migration_file = MpmListHelper::get_migration_file(MPM_DB_PATH . $filename);
+
+		if (!$migration_file) {
+			echo "\n\tMigration " . $obj->timestamp . ' (ID '.$obj->id.') skipped - file missing.';
+			return;
+		}
 
 	    // file exists -- run the migration
 		echo "\n\tPerforming " . strtoupper($method) . " migration " . $obj->timestamp . ' (ID '.$obj->id.')... ';
-		require_once(MPM_DB_PATH . $filename);
+		require_once($migration_file);
 		$migration = new $classname();
         if ($migration instanceof MpmMigration) // need PDO object
         {
