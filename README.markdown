@@ -10,3 +10,16 @@ MySQL-PHP-Migrations includes the following features:
 * in-line help
 * support for PDO with MySQL driver or mysqli
 * can store an initial DB schema which allows entire database structure to be erased and rebuilt from an initial schema and existing migrations
+
+New changes by luxbet:
+
+* --dry-run / -p support: try out without any database changes
+* migration files can be grouped by put under separate folders under /db
+  (when using ./migrate.php add, it is still put under /db directly, but you can move them around later)
+* an SQL log file (log.sql) for all the SQL from migration files of last run
+* fix bugs and a little nicer CLI prompt
+
+Known Issues:
+
+* We may break some PDO support when adding --dry-run :( We use mysqli only
+
