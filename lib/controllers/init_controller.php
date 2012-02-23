@@ -347,7 +347,7 @@ class MpmInitController extends MpmController
 
 		if (isset($doBuild) && $doBuild === true)
 		{
-		    $obj = new MpmBuildController();
+		    $obj = new MpmBuildController('build', $this->arguments);
 		    $obj->build();
 		    echo "\n\n";
 		}
@@ -374,7 +374,7 @@ class MpmInitController extends MpmController
 		$obj->addText('This command is used to initialize the migration system for use with your particular deployment.  After you have modified the /config/db.php configuration file appropriately, you should run this command to setup the initial tracking schema and add your username to the migraiton archive.');
 		$obj->addText(' ');
 		$obj->addText('Example:');
-		$obj->addText('./migrate.php init jdoe', 4);
+		$obj->addText('./migrate.php init', 4);
 		$obj->write();
 	}
 

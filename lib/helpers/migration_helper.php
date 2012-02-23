@@ -21,18 +21,19 @@ class MpmMigrationHelper
      * Sets the current active migration.
      *
      * @uses MpmDbHelper::getDbObj()
-     *
-     * @param int $id the ID of the migration to set as the current one
-     *
-     * @return void
-     */
-    static public function setCurrentMigration($id)
+	 *
+	 * @static
+	 * @param int $id the ID of the migration to set as the current one
+	 * @param bool $dryrun
+	 */
+    static public function setCurrentMigration($id, $dryrun = false)
     {
     	$db_config = $GLOBALS['db_config'];
     	$migrations_table = $db_config->migrations_table;
         $sql1 = "UPDATE `{$migrations_table}` SET `is_current` = '0'";
         $sql2 = "UPDATE `{$migrations_table}` SET `is_current` = '1' WHERE `id` = {$id}";
         $obj = MpmDbHelper::getDbObj();
+		$obj->dryrun = $dryrun;
         $obj->beginTransaction();
         try
         {
@@ -87,8 +88,6 @@ class MpmMigrationHelper
 		$filename = MpmStringHelper::getFilenameFromTimestamp($obj->timestamp);
 		$classname = 'Migration_' . str_replace('.php', '', $filename);
 
-
-
 	    // make sure the file exists; if it doesn't, skip it but display a message
 		$migration_file = MpmListHelper::get_migration_file(MPM_DB_PATH . $filename);
 
@@ -98,7 +97,10 @@ class MpmMigrationHelper
 		}
 
 	    // file exists -- run the migration
-		echo "\n\tPerforming " . strtoupper($method) . " migration " . $obj->timestamp . ' (ID '.$obj->id.')... ';
+		$msg = '# Performing' . strtoupper($method) . " migration " . $obj->timestamp . ' (ID '.$obj->id.')...';
+		echo "\n\t" . $msg;
+		MpmSqlLogger::log_to_file($msg . "\n");
+
 		require_once($migration_file);
 		$migration = new $classname();
         if ($migration instanceof MpmMigration) // need PDO object

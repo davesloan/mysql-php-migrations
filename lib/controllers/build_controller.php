@@ -78,7 +78,7 @@ class MpmBuildController extends MpmController
 
         $this->clw->writeHeader();
 
-        if (!$forced)
+        if (!$forced && !$dryrun)
         {
 		    echo "\nWARNING:  IF YOU CONTINUE, ALL TABLES IN YOUR DATABASE WILL BE ERASED!";
 		    echo "\nDO YOU WANT TO CONTINUE? [y/N] ";
@@ -94,7 +94,7 @@ class MpmBuildController extends MpmController
 		}
 
         echo "\n";
-        $this->build($with_data, $this->arguments);
+        $this->build($with_data);
 
         $this->clw->writeFooter();
         exit;
@@ -156,18 +156,25 @@ class MpmBuildController extends MpmController
 	 * @uses MpmLatestController::doAction()
 	 * @uses MPM_DB_PATH
 	 * @param bool $with_data	whether or not to run the test_data.php file after build
-	 * @param array $arguments	command line arguments to be passed to 'up' action controller
 	 */
-	public function build($with_data, $arguments)
+	public function build($with_data = false)
 	{
+		// parse other optional arguments
+		list($forced, $dryrun) = $this->parse_options($this->arguments);
+
 	    require_once(MPM_DB_PATH . 'schema.php');
-	    $obj = new MpmInitialSchema();
+	    $obj = new MpmInitialSchema($dryrun);
 	    $obj->destroy();
 	    echo "\n";
 	    $obj->reloadMigrations();
-		echo "\n", 'Building initial database schema... ';
-	    $obj->build();
-		echo 'done.', "\n\n", 'Applying migrations... ';
+
+		if (!$dryrun) {
+			echo "\n", 'Building initial database schema... ';
+			$obj->build();
+
+			echo 'done.', "\n\n", 'Applying migrations... ';
+		}
+
 		try
 		{
 			$total_migrations = MpmMigrationHelper::getMigrationCount();
@@ -178,7 +185,7 @@ class MpmBuildController extends MpmController
 			else
 			{
 				$to_id = MpmMigrationHelper::getLatestMigration();
-				$obj = new MpmUpController('up', array_merge(array($to_id), $arguments));
+				$obj = new MpmUpController('up', array_merge(array($to_id), $this->arguments));
 	    		$obj->doAction();
 			}
 		}
@@ -187,7 +194,7 @@ class MpmBuildController extends MpmController
 			echo "\n\nERROR: " . $e->getMessage() . "\n\n";
 			exit;
 		}
-		if ($with_data)
+		if (!$dryrun && $with_data)
 		{
 	    	require_once(MPM_DB_PATH . 'test_data.php');
 			echo "\n\nInserting test data... ";

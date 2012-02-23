@@ -86,7 +86,7 @@ class MpmUpController extends MpmController
 		    MpmMigrationHelper::runMigration($obj, 'up', array('forced' => $forced, 'dryrun' => $dryrun));
 		}
 
-		MpmMigrationHelper::setCurrentMigration($up_to);
+		MpmMigrationHelper::setCurrentMigration($up_to, $dryrun);
 
 		if (!$quiet)
 		{

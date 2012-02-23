@@ -19,9 +19,9 @@
 class MpmInitialSchema extends MpmSchema
 {
 
-	public function __construct()
+	public function __construct($dryrun = false)
 	{
-		parent::__construct();
+		parent::__construct($dryrun);
 
 		/* If you build your initial schema having already executed a number of migrations,
 		* you should set the initial migration timestamp.

@@ -77,7 +77,7 @@ class MpmDownController extends MpmController
 			MpmMigrationHelper::runMigration($obj, 'down', array('forced' => $forced, 'dryrun' => $dryrun));
 		}
 		
-		MpmMigrationHelper::setCurrentMigration($down_to);
+		MpmMigrationHelper::setCurrentMigration($down_to, $dryrun);
 		echo "\n";
 		$clw->writeFooter();
 	}

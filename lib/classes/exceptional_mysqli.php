@@ -64,6 +64,7 @@ class ExceptionalMysqli extends mysqli
 			return true;
 
 		} else {
+			// not dry-run
 			$result = parent::query($query, $resultMode);
 			if ($this->errno)
 			{
