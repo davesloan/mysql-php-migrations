@@ -352,7 +352,9 @@ class MpmInitController extends MpmController
 		    echo "\n\n";
 		}
 
-		echo "Initalization complete!  Type 'php migrate.php help' for a list of commands.\n\n";
+		echo "Initalization complete!  Type 'php migrate.php help' for a list of commands.\n";
+		echo "tl;dr? Your next step can be './migrate.php build' to initiate the database. \n\n";
+
 		$clw->writeFooter();
 		exit;
 	}
