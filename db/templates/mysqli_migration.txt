@@ -1,0 +1,27 @@
+<?php
+
+class Migration_@@timestamp@@ extends MpmMysqliMigration {
+
+	public function up(ExceptionalMysqli &$db) {
+/*
+		$sql =<<< SQL_UP_BLOCK
+
+
+SQL_UP_BLOCK;
+
+		$db->query($sql);
+*/
+	}
+
+	public function down(ExceptionalMysqli &$db) {
+/*
+		$sql =<<< SQL_DOWN_BLOCK
+
+
+SQL_DOWN_BLOCK;
+
+		$db->query($sql);
+*/
+	}
+
+}

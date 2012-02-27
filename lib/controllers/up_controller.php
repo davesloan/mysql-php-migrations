@@ -54,12 +54,8 @@ class MpmUpController extends MpmController
 			return $this->displayHelp();
 		}
 
-		// are we forcing this?
-		$forced = false;
-		if (isset($this->arguments[1]) && strcasecmp($this->arguments[1], '--force') == 0)
-		{
-		    $forced = true;
-		}
+		// parse other optional arguments
+		list($forced, $dryrun) = $this->parse_options($this->arguments);
 
         // what migrations need to be done?
         $list = MpmMigrationHelper::getListOfMigrations($up_to);
@@ -87,10 +83,10 @@ class MpmUpController extends MpmController
 
 		foreach ($list as $id => $obj)
 		{
-		    MpmMigrationHelper::runMigration($obj, 'up', $forced);
+		    MpmMigrationHelper::runMigration($obj, 'up', array('forced' => $forced, 'dryrun' => $dryrun));
 		}
 
-		MpmMigrationHelper::setCurrentMigration($up_to);
+		MpmMigrationHelper::setCurrentMigration($up_to, $dryrun);
 
 		if (!$quiet)
 		{
@@ -111,7 +107,7 @@ class MpmUpController extends MpmController
 	public function displayHelp()
 	{
 		$obj = MpmCommandLineWriter::getInstance();
-		$obj->addText('./migrate.php up [migration #] [--force]');
+		$obj->addText('./migrate.php up <migration #> [--force|-f] [--dry-run|-p]');
 		$obj->addText(' ');
 		$obj->addText('This command is used to migrate up to a newer version.  You can get a list of all of the migrations available by using the list command.');
 		$obj->addText(' ');

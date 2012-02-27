@@ -26,7 +26,7 @@ class MpmListHelper
      */
     static function getTotalMigrations()
     {
-    	$db_config = $GLOBALS['db_config'];
+    	$db_config = MpmDbHelper::get_db_config();
     	$migrations_table = $db_config->migrations_table;
     	$sql = "SELECT COUNT(*) AS total FROM `{$migrations_table}`";
         $obj = MpmDbHelper::doSingleRowSelect($sql);
@@ -45,7 +45,7 @@ class MpmListHelper
      */
     static function getFullList($startIdx = 0, $total = 30)
     {
-    	$db_config = $GLOBALS['db_config'];
+    	$db_config = MpmDbHelper::get_db_config();
     	$migrations_table = $db_config->migrations_table;
     	$list = array();
         $sql = "SELECT * FROM `{$migrations_table}` ORDER BY `timestamp`";
@@ -73,7 +73,7 @@ class MpmListHelper
      */
     static function mergeFilesWithDb()
     {
-    	$db_config = $GLOBALS['db_config'];
+    	$db_config = MpmDbHelper::get_db_config();
     	$migrations_table = $db_config->migrations_table;
     	$files = MpmListHelper::getListOfFiles();
         $total_migrations = MpmListHelper::getTotalMigrations();
@@ -90,7 +90,7 @@ class MpmListHelper
                     foreach ($files as $file)
                     {
                         $sql = "INSERT IGNORE INTO `{$migrations_table}` ( `timestamp`, `active`, `is_current` ) VALUES ( '{$file->timestamp}', 0, 0 )";
-                        $pdo->exec($sql);
+                        $pdo->internal_exec($sql);
                     }
                 }
                 catch (Exception $e)
@@ -112,7 +112,7 @@ class MpmListHelper
                         if (!in_array($obj->timestamp, $file_timestamps) && $obj->active == 0)
                         {
                             $sql = "DELETE FROM `{$migrations_table}` WHERE `id` = '{$obj->id}'";
-                            $pdo->exec($sql);
+                            $pdo->internal_exec($sql);
                         }
                     }
                 }
@@ -139,7 +139,7 @@ class MpmListHelper
                     foreach ($files as $file)
                     {
                         $stmt->bind_param('s', $file->timestamp);
-                        $result = $stmt->execute();
+                        $result = $mysqli->internal_statement_execute($stmt);
                         if ($result === false)
                         {
                             throw new Exception('Unable to execute query to update file list.');
@@ -165,7 +165,7 @@ class MpmListHelper
                         if (!in_array($obj->timestamp, $file_timestamps) && $obj->active == 0)
                         {
                             $stmt->bind_param('i', $obj->id);
-                            $result = $stmt->execute();
+                            $result = $result = $mysqli->internal_statement_execute($stmt);
                             if ($result === false)
                             {
                                 throw new Exception('Unable to execute query to remove stale files from the list.');
@@ -212,34 +212,47 @@ class MpmListHelper
 	 *
 	 * @return array
 	 */
-	static public function getListOfFiles($sort = 'old')
-	{
+	static public function getListOfFiles($sort = 'old') {
 		$list = array();
-		if ($sort == 'new')
-		{
-			$sort_order = 1;
-		}
-		else
-		{
-			$sort_order = 0;
-		}
-		$files = scandir(MPM_DB_PATH, $sort_order);
-		foreach ($files as $file)
-		{
-			$full_file = MPM_DB_PATH . $file;
-			if ($file != 'schema.php' && $file != '.' && $file != '..' && !is_dir($full_file) && stripos($full_file, '.php') !== false)
-			{
-                $timestamp = MpmStringHelper::getTimestampFromFilename($file);
-                if ($timestamp !== null)
-                {
+
+		$exclude_list = array(
+			"templates\/",
+			"schema\.php$",
+			"test_data\.php$"
+		);
+
+		$exclude_list_pattern = implode("|", $exclude_list);
+
+		// SKIP_DOTS (. / ..) suppose to be included by default, but apparently not;
+		$dir_iter = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator(MPM_DB_PATH,
+				FilesystemIterator::KEY_AS_PATHNAME | FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS));
+
+		foreach ($dir_iter as $file) {
+			$file_name = $file->getFilename();	// abc.js
+			$file_local_path = $file->getPathName();	// /home/www/dev/jscommon/test/abc.js
+
+			if (preg_match('/\.php$/i', $file_name) && !preg_match('/' . $exclude_list_pattern . '/i', $file_name)) {
+				$timestamp = MpmStringHelper::getTimestampFromFilename($file_name);
+
+				if ($timestamp !== null) {
 					$obj = (object) array();
+
 					$obj->timestamp = $timestamp;
-					$obj->filename = $file;
-					$obj->full_file = $full_file;
-					$list[] = $obj;
-                }
+					$obj->filename = $file_name;
+					$obj->full_file = $file_local_path;
+					$list[strtotime($timestamp)] = $obj;
+				}
 			}
+		} // foreach
+
+		// sort by timestamp
+		if ($sort == 'new') {
+			krsort($list, SORT_NUMERIC);
+		} else { // 'old'
+			ksort($list, SORT_NUMERIC);
 		}
+
 		return $list;
 	}
 
@@ -274,7 +287,7 @@ class MpmListHelper
 	 */
 	static public function getListFromDb($latestTimestamp, $direction = 'up')
 	{
-    	$db_config = $GLOBALS['db_config'];
+    	$db_config = MpmDbHelper::get_db_config();
     	$migrations_table = $db_config->migrations_table;
 		if ($direction == 'down')
 		{
@@ -299,6 +312,37 @@ class MpmListHelper
 		return $list;
 	}
 
+	/**
+	 * From: http://www.php.net/manual/en/function.glob.php#106595
+	 *
+	 * @static
+	 * @param $pattern
+	 * @param int $flags
+	 * @return array
+	 */
+	static private function glob_recursive($pattern, $flags = 0) {
+		$files = glob($pattern, $flags);
+
+		foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
+			$files = array_merge($files, self::glob_recursive($dir.'/'.basename($pattern), $flags));
+		}
+
+		return $files;
+	}
+
+	static public function get_migration_file($file_name) {
+		$result = self::glob_recursive($file_name);
+
+		if (count($result) == 0) {
+			// no file found
+			return false;
+		} else if (count($result) > 1) {
+			// found multiple files! how come!
+			throw new MpmMigrationFileErrorException();
+		} else {
+			return $result[0];
+		}
+	}
 }
 
 ?>

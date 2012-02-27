@@ -8,7 +8,16 @@
  * @link       http://code.google.com/p/mysql-php-migrations/
  */
 
-if (file_exists(MPM_PATH . '/config/db_config.php'))
+if (file_exists('./migration_config.php')) {
+  
+  echo 'Using local config from ' . realpath('./migration_config.php') . "\n";
+
+  /**
+	 * Include the database connection from current directory.
+	 */
+	require_once('./migration_config.php');
+} 
+elseif (file_exists(MPM_PATH . '/config/db_config.php'))
 {
 	/**
 	 * Include the database connection info.
@@ -81,5 +90,8 @@ if (function_exists('__autoload'))
 
 // add custom library autoloader to the stack
 spl_autoload_register('MpmAutoloadHelper::load');
+
+// Remove SQL log file if any
+MpmSqlLogger::remove_file();
 
 ?>

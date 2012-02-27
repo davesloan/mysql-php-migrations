@@ -1,6 +1,6 @@
 This project was created to address the problem of maintaining database changes within an actively developed PHP/MySQL project. Frequently, multiple developers need to be able to quickly update their local sandboxes with the latest DB schema changes and also add their own without creating file conflicts in repositories such as CVS and Subversion.
 
-MySQL-PHP-Migrations includes the following features:
+## MySQL-PHP-Migrations includes the following features:
 
 * command-line only utility
 * migration files are stored using timestamps to reduce repository conflicts
@@ -10,3 +10,16 @@ MySQL-PHP-Migrations includes the following features:
 * in-line help
 * support for PDO with MySQL driver or mysqli
 * can store an initial DB schema which allows entire database structure to be erased and rebuilt from an initial schema and existing migrations
+
+## New changes by luxbet:
+
+* --dry-run / -p support: try out without any database changes
+* migration files can be grouped by put under separate folders under /db
+  (when using ./migrate.php add, it is still put under /db directly, but you can move them around later)
+* an SQL log file (log.sql) for all the SQL from migration files of last run
+* fix bugs and a little nicer CLI prompt
+
+## Known Issues:
+
+* We may break some PDO support when adding --dry-run :( We use mysqli only
+

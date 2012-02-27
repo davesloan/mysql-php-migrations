@@ -300,8 +300,8 @@ class MpmInitController extends MpmController
     				$pdo->beginTransaction();
     				try
     				{
-    					$pdo->exec($sql1);
-    					$pdo->exec($sql2);
+    					$pdo->internal_exec($sql1);
+    					$pdo->internal_exec($sql2);
     				}
     				catch (Exception $e)
     				{
@@ -315,14 +315,14 @@ class MpmInitController extends MpmController
 			    else
 			    {
 			        $mysqli = MpmDbHelper::getDbObj();
-			        $mysqli->query($sql1);
+			        $mysqli->internal_exec($sql1);
 			        if ($mysqli->errno)
 			        {
     					echo "failure!\n\n" . 'Unable to create required ' . $migrations_table . ' table:' . $mysqli->error;
     					echo "\n\n";
     					exit;
 			        }
-		            $mysqli->query($sql2);
+		            $mysqli->internal_exec($sql2);
 			        if ($mysqli->errno)
 			        {
     					echo "failure!\n\n" . 'Unable to create required ' . $migrations_table . ' table:' . $mysqli->error;
@@ -347,12 +347,14 @@ class MpmInitController extends MpmController
 
 		if (isset($doBuild) && $doBuild === true)
 		{
-		    $obj = new MpmBuildController();
+		    $obj = new MpmBuildController('build', $this->arguments);
 		    $obj->build();
 		    echo "\n\n";
 		}
 
-		echo "Initalization complete!  Type 'php migrate.php help' for a list of commands.\n\n";
+		echo "Initalization complete!  Type 'php migrate.php help' for a list of commands.\n";
+		echo "tl;dr? Your next step can be './migrate.php build' to initiate the database. \n\n";
+
 		$clw->writeFooter();
 		exit;
 	}
@@ -374,7 +376,7 @@ class MpmInitController extends MpmController
 		$obj->addText('This command is used to initialize the migration system for use with your particular deployment.  After you have modified the /config/db.php configuration file appropriately, you should run this command to setup the initial tracking schema and add your username to the migraiton archive.');
 		$obj->addText(' ');
 		$obj->addText('Example:');
-		$obj->addText('./migrate.php init jdoe', 4);
+		$obj->addText('./migrate.php init', 4);
 		$obj->write();
 	}
 
