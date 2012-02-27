@@ -36,13 +36,6 @@ class MpmLatestController extends MpmController
 		// make sure we're init'd
 		MpmDbHelper::test();
 
-		// are we forcing this?
-		$forced = '';
-		if (isset($this->arguments[0]) && strcasecmp($this->arguments[0], '--force') == 0)
-		{
-		    $forced = '--force';
-		}
-
 		try
 		{
 			$total_migrations = MpmMigrationHelper::getMigrationCount();
@@ -55,7 +48,7 @@ class MpmLatestController extends MpmController
 			else
 			{
 				$to_id = MpmMigrationHelper::getLatestMigration();
-				$obj = new MpmUpController('up', array ( $to_id, $forced ));
+				$obj = new MpmUpController('up', array_merge(array($to_id), $this->arguments));
 	    		$obj->doAction($quiet);
 			}
 		}
@@ -78,7 +71,7 @@ class MpmLatestController extends MpmController
 	public function displayHelp()
 	{
 		$obj = MpmCommandLineWriter::getInstance();
-		$obj->addText('./migrate.php latest [--force]');
+		$obj->addText('./migrate.php latest [--force|-f] [--dry-run|-p]');
 		$obj->addText(' ');
 		$obj->addText('This command is used to migrate up to the most recent version.  No arguments are required.');
 		$obj->addText(' ');

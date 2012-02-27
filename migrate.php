@@ -36,8 +36,17 @@ define('MPM_VERSION', '2.1.4');
 require_once(MPM_PATH . '/lib/init.php');
 
 // get the proper controller, do the action, and exit the script
-$obj = MpmControllerFactory::getInstance($argv);
-$obj->doAction();
+try {
+	$obj = MpmControllerFactory::getInstance($argv);
+	$obj->doAction();
+
+} catch (MpmClassUndefinedException $ex) {
+	// exit gracefully when wrong action is called like './migrate.php -h'
+	$obj = MpmCommandLineWriter::getInstance();
+	$obj->addText('Invalid action. Please try "./migrate.php help"');
+	$obj->write();
+}
+
 exit;
 
 ?>

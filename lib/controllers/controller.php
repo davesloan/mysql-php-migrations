@@ -37,8 +37,8 @@ abstract class MpmController
 	 * @uses MpmDbHelper::test()
 	 * @uses MpmListHelper::mergeFilesWithDb()
 	 *
+	 * @param string $command
 	 * @param array $arguments an array of command line arguments (minus the first two elements which should already be shifted off from the MpmControllerFactory)
-	 *
 	 * @return MpmController
 	 */
 	public function __construct($command = 'help', $arguments = array())
@@ -50,6 +50,35 @@ abstract class MpmController
             MpmDbHelper::test();
     		MpmListHelper::mergeFilesWithDb();
 		}
+	}
+
+	/**
+	 * Parse command line options
+	 *
+	 * @usage list($forced, $dryrun) = $this->parse_options($this->arguments);
+	 *
+	 * @param array $options
+	 * @return array
+	 */
+	public function parse_options($options = array()) {
+		$forced = $dryrun = false;
+
+		foreach ($options as $option) {
+			switch ($option) {
+				case '--force':
+				case '-f':
+					$forced = true;
+					break;
+
+				case '--dry-run':
+				case '--dryrun':
+				case '-p':
+					$dryrun = true;
+					break;
+			}
+		}
+
+		return array($forced, $dryrun);
 	}
 	
 	/**
