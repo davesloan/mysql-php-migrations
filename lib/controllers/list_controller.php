@@ -53,7 +53,7 @@ class MpmListController extends MpmController
 		}
 		$start_idx = ($page - 1) * $per_page;
 		
-		$list = MpmListHelper::getFullList($start_idx);
+		$list = MpmListHelper::getFullList($start_idx, $per_page);
 		$total = MpmListHelper::getTotalMigrations();
 		$total_pages = ceil($total / $per_page);
 		$clw = MpmCommandLineWriter::getInstance();
