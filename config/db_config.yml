@@ -1,0 +1,9 @@
+---
+host: localhost
+port: 3306
+user: mpm
+pass:
+name: mpm
+db_path: /home/hlmtre/mpm/db/
+method: 2
+migrations_table: mpm_migrations

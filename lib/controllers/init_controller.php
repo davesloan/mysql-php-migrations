@@ -1,4 +1,5 @@
 <?php
+require_once(MPM_PATH."/lib/yaml/spyc.php");
 /**
  * This file houses the MpmInitController class.
  *
@@ -45,8 +46,11 @@ class MpmInitController extends MpmController
 		$clw = MpmCommandLineWriter::getInstance();
 		$clw->writeHeader();
 		echo "Defaults are in brackets ([]).  To accept the default, simply press ENTER.\n\n";
+		echo "Running _yaml_parse...";
+		echo "\n";
+		$this->db_config = (object) array();
 
-		if (file_exists(MPM_PATH . '/config/db_config.php'))
+		if (file_exists(MPM_PATH . '/config/db_config.yml'))
 		{
 			echo "\nWARNING:  IF YOU CONTINUE, YOUR EXISTING MIGRATION SETUP WILL BE ERASED!";
 			echo "\nThis will not affect your existing migrations or database, but \ncould cause your future migrations to fail.";
@@ -62,7 +66,7 @@ class MpmInitController extends MpmController
 			}
 			else
 			{
-			    require(MPM_PATH . '/config/db_config.php');
+					$this->_yaml_parse();
 			}
 		}
 
@@ -248,40 +252,26 @@ class MpmInitController extends MpmController
                 $doBuild = true;
             }
 		}
+		$this->db_config->host = $host;
+		$this->db_config->port = $port;
+		$this->db_config->user = $user;
+		$this->db_config->pass = $pass;
+		$this->db_config->name = $dbname;
+		$this->db_config->db_path = $db_path;
+		$this->db_config->method = $method;
+		$this->db_config->migrations_table = $migrations_table;
+		$this->output = Spyc::YAMLDump($this->db_config);
 
-		$file = '<?php' . "\n\n";
-		$file .= '$db_config = (object) array();' . "\n";
-		$file .= '$db_config->host = ' . "'" . $host . "';" . "\n";
-		$file .= '$db_config->port = ' . "'" . $port . "';" . "\n";
-		$file .= '$db_config->user = ' . "'" . $user . "';" . "\n";
-		$file .= '$db_config->pass = ' . "'" . $pass . "';" . "\n";
-		$file .= '$db_config->name = ' . "'" . $dbname . "';" . "\n";
-        $file .= '$db_config->db_path = ' . "'" . $db_path . "';" . "\n";
-        $file .= '$db_config->method = ' . $method . ";" . "\n";
-        $file .= '$db_config->migrations_table = ' . "'" . $migrations_table . "';" . "\n";
-        $file .= "\n?>";
-
-		if (file_exists(MPM_PATH . '/config/db_config.php'))
-		{
-			unlink(MPM_PATH . '/config/db_config.php');
-		}
-
-		$fp = fopen(MPM_PATH . '/config/db_config.php', "w");
-		if ($fp == false)
-		{
-			echo "\nUnable to write to file.  Initialization failed!\n\n";
-			exit;
-		}
-		$success = fwrite($fp, $file);
+		$success = $this->_yaml_write();
 		if ($success == false)
 		{
 			echo "\nUnable to write to file.  Initialization failed!\n\n";
 			exit;
 		}
-		fclose($fp);
+		else echo "Wrote successfully!";
 
-		require(MPM_PATH . '/config/db_config.php');
-		$GLOBALS['db_config'] = $db_config;
+		//require(MPM_PATH . '/config/db_config.php');
+		$GLOBALS['db_config'] = $this->db_config;
 
 		echo "\nConfiguration saved... looking for existing migrations table... ";
 
@@ -376,6 +366,92 @@ class MpmInitController extends MpmController
 		$obj->addText('Example:');
 		$obj->addText('./migrate.php init jdoe', 4);
 		$obj->write();
+	}
+
+
+	private function _yaml_write()
+	{
+		$fp = fopen(MPM_PATH . '/config/db_config.yml', "w");
+		if ($fp == false)
+		{
+			echo "\nUnable to write to file.  Initialization failed!\n\n";
+			exit(1);
+		}
+		$success = fwrite($fp, $this->output);
+		if ($success) {
+			fclose($fp);
+		}
+		else 
+		{
+			echo "\n Unable to write to file. Initialization failed!\n\n";
+			exit(1);
+		}
+		return $success;
+	}
+
+	/**
+	*
+	* load the YAML database file into the db_config object used globally
+	*
+	* this function (and _yaml_write) require the spyc YAML php library to be in lib/yaml/ 
+	*
+	*		Switching to an environment setup would build the db YAML file like so:
+	*
+	*		development:
+	*			host = localhost
+	*			...
+	*		production:
+	*			host = mysqlserver.somedomain.com
+	*		... 
+	*		etc
+	*
+	*		When YAMLLoad loads that file into a variable, it creates a two-deep array:
+	*		layer 0 would look like this:
+	*		[0] => development
+	*		[1] => production
+	*
+	*		layer 1:
+	*		[host] => localhost
+	*
+	*		so to implement environments, one would simply create a function which sets a global variable for the preferred environment
+	*		such as ./migrate.php env, which would take the name of the environment to use.
+	*
+	*		then simply iterate through the two-deep array and check the key against the set environment, like so:
+	*		foreach ($config_file as $k => $v)
+	*		{
+	*			if ($k == $GLOBALS['environment'])
+	*				$this->db_config assignment code here
+	*		}
+	*
+	*/
+	private function _yaml_parse()
+	{
+		$debug  = true;
+		$clw = MpmCommandLineWriter::getInstance();
+		if (file_exists(MPM_PATH . '/config/db_config.yml'))
+		{
+			// TODO:
+			/*
+			 *	Split prompt and load into two functions
+			 *	Allow for environment switching via commandline flag
+			 *
+			*/
+				$orig_config = Spyc::YAMLLoad(MPM_PATH . '/config/db_config.yml');
+				$this->db_config->host = $orig_config['host'];
+				$this->db_config->port = $orig_config['port'];
+				$this->db_config->user = $orig_config['user'];
+				$this->db_config->pass = $orig_config['pass'];
+				$this->db_config->name = $orig_config['name'];
+				$this->db_config->db_path = $orig_config['db_path'];
+				$this->db_config->method = $orig_config['method'];
+				$this->db_config->migrations_table = $orig_config['migrations_table'];
+				$GLOBALS['db_config'] = $this->db_config;
+		}
+		else
+		{
+			echo "ERROR: Could not read database file.";
+			exit(1);
+		}
 	}
 
 }
