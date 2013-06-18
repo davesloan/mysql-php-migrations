@@ -74,6 +74,7 @@ class MpmDownController extends MpmController
 		else
 		{
 			echo "Migrating to " . MpmMigrationHelper::getTimestampFromId($down_to) . ' (ID '.$down_to.')... ';
+			flush();
 		}
 		
 		foreach ($list as $id => $obj)
