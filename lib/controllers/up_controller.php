@@ -82,7 +82,8 @@ class MpmUpController extends MpmController
 
 		if (!$quiet)
 		{
-		    echo "Migrating to " . $to . ' (ID '.$up_to.')... ';
+			echo "Migrating to " . $to . ' (ID '.$up_to.')... ';
+			flush();
 		}
 
 		foreach ($list as $id => $obj)
