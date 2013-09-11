@@ -73,14 +73,6 @@ class MpmAutoloadHelper
             }
         }
         
-        // make sure we've included the class
-        if (false === class_exists($class_name, false))
-        {
-            if (false === interface_exists($class_name, false))
-            {
-                throw new MpmClassUndefinedException('Class or interface "' . $class_name . '" does not exist.', E_USER_ERROR);
-            }
-        }
         return;
 	}
 	
