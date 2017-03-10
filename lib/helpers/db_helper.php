@@ -54,7 +54,9 @@ class MpmDbHelper
     {
 		$pdo_settings = array
 		(
-			PDO::ATTR_PERSISTENT => true,
+			// Поддержка постояных подключений ведет к ошибке, когда при создании нового подключения 
+			// через new PDO теряются существующие транзакции #14810.
+			// PDO::ATTR_PERSISTENT => true,
 			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 			PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true
 		);
